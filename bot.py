@@ -269,11 +269,11 @@ def cmdPrintError(chatId):
 def cmdShowHelp(chatId):
 	message = "Folgende Befehle kannst du mir geben:\n"
 	for cmd in commands:
-		message+=("  /"cmd+"\n")
+		message+=("  /"+cmd+"\n")
 	alfred.sendMessage(chatId,message)
 
 commands = {
-	"errors" : cmdPrintError
+	"errors" : cmdPrintError,
 	"help" : cmdShowHelp}
 
 
