@@ -204,7 +204,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 	#filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
 	#iconFile=open(filename,'r')
 	#alfred.sendPhoto(chatId,filename)
-	emoji = weatherEmojis[weatherCategory]
+	emoji = weatherEmojis.get[weatherCategory,u'\U0001F300']
 
 	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
 	alfred.sendMessage(chatId,message,parse_mode="Markdown")
