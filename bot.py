@@ -204,8 +204,11 @@ def actionGetWeather(chatId,msgSender,attributes):
 	#filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
 	#iconFile=open(filename,'r')
 	#alfred.sendPhoto(chatId,filename)
-	emoji = weatherEmojis.get[weatherCategory,u'\U0001F300']
-
+	if weatherEmojis.has_key(weatherCategory):
+		emoji = weatherEmojis[weatherCategory]
+	else:
+		u'\U0001F300'
+	
 	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
 	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
@@ -312,7 +315,10 @@ def handleMessage(msg):
 			intent = resp['entities']['intent'][0]['value']
 			print resp
 			print "Intent:" + intent
-			intentActions.get[intent,actionNotLearned(chatId,intent)](chatId,msgSender,resp)
+			if intentActions.has_key(intent):
+				intentActions.[intent](chatId,msgSender,resp)
+			else:
+				actionNotLearned()
 		else:
 			print "No intent found"
 			alfred.sendMessage(chatId,"Mmmh. Erklaer mir nochmal was ich machen soll")
