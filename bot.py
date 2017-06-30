@@ -207,13 +207,14 @@ def actionGetWeather(chatId,msgSender,attributes):
 	if weatherEmojis.has_key(weatherCategory):
 		emoji = weatherEmojis[weatherCategory]
 	else:
-		u'\U0001F300'
-	
+		emoji = u'\U0001F300'
+
 	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
 	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
 def actionNotLearned(chatId,intent):
-	message = intent+" - Da mir noch niemand gesagt was ich machen soll"
+	emoji = u'\U0001F622'
+	message = intent+" - Da hat mir noch niemand gesagt was ich machen soll."+u'\U0001F622'
 	alfred.sendMessage(chatId,message)
 
 intentActions = {
@@ -316,9 +317,9 @@ def handleMessage(msg):
 			print resp
 			print "Intent:" + intent
 			if intentActions.has_key(intent):
-				intentActions.[intent](chatId,msgSender,resp)
+				intentActions[intent](chatId,msgSender,resp)
 			else:
-				actionNotLearned()
+				actionNotLearned(chatId,intent)
 		else:
 			print "No intent found"
 			alfred.sendMessage(chatId,"Mmmh. Erklaer mir nochmal was ich machen soll")
