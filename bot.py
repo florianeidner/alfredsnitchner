@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 import os
 import time
 from datetime import datetime
@@ -175,14 +175,18 @@ def actionGetWeather(chatId,msgSender,attributes):
 	if attributes['entities'].has_key('location'):
 		location = attributes['entities']['location'][0]['value']
 	else:
-		location="Muenchen"
+		location="München"
 
 	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
+	if r.json() = None:
+		location ="München"
+		r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
+
 	city = r.json()[0]['LocalizedName']
 	country = r.json()[0]['Country']['LocalizedName']
 	locationKey = r.json()[0]['Key']
 
-	message= "Hier kommt das Wetter fuer "+city+", "+country+":"
+	message= "Hier kommt das Wetter für "+city+", "+country+":"
 	alfred.sendMessage(chatId,message)
 
 	url="http://dataservice.accuweather.com/forecasts/v1/daily/1day/"+locationKey
