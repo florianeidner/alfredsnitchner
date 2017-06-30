@@ -209,6 +209,10 @@ def actionGetWeather(chatId,msgSender,attributes):
 	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
 	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
+def actionNotLearned(chatId,intent):
+	message = intent+" - Da mir noch niemand gesagt was ich machen soll"
+	alfred.sendMessage(chatId,message)
+
 intentActions = {
 	"introduction": actionIntro,
 	"addExpense": actionAddExpense,
@@ -220,6 +224,15 @@ intentActions = {
 	"expenses":actionGetExpenses,
 	"pay":actionMakePayment,
 	"weather":actionGetWeather}
+
+def cmdPrintError():
+	print "Error"
+
+commands = {
+	"error" : cmdPrintError
+	}
+
+
 
 #Queue commands
 def addCommand(function, args):
@@ -287,6 +300,9 @@ def handleMessage(msg):
 	msgContent = msg['text']
 	msgSender = msg['from']['first_name']
 
+	if "/" in msgContent:
+		cmd = msgContent[msgContent.find("/")].split()[0]
+
 	print "Message received"
 	print "messageForward: " + str(messageForward)
 	if "alfred" in msgContent or "Alfred" in msgContent or(messageForward == True):
@@ -296,7 +312,7 @@ def handleMessage(msg):
 			intent = resp['entities']['intent'][0]['value']
 			print resp
 			print "Intent:" + intent
-			intentActions[intent](chatId,msgSender,resp)
+			intentActions.get[intent,actionNotLearned(chatId,intent)](chatId,msgSender,resp)
 		else:
 			print "No intent found"
 			alfred.sendMessage(chatId,"Mmmh. Erklaer mir nochmal was ich machen soll")
