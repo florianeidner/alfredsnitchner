@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 import os
 import time
 from datetime import datetime
@@ -178,7 +178,8 @@ def actionGetWeather(chatId,msgSender,attributes):
 		location="München"
 
 	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
-	if r.json() = None:
+	if (bool(r.json())== False):
+		alfred.sendMessage(chatId,"Den Ort habe ich nicht gefunden")
 		location ="München"
 		r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
 
@@ -186,7 +187,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 	country = r.json()[0]['Country']['LocalizedName']
 	locationKey = r.json()[0]['Key']
 
-	message= "Hier kommt das Wetter für "+city+", "+country+":"
+	message= "Hier kommt das Wetter fuer "+city+", "+country+":"
 	alfred.sendMessage(chatId,message)
 
 	url="http://dataservice.accuweather.com/forecasts/v1/daily/1day/"+locationKey
@@ -196,7 +197,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 	weatherCategory = r.json()['Headline']['Category']
 	tempMin = r.json()['DailyForecasts'][0]['Temperature']['Minimum']['Value']
 	tempMax = r.json()['DailyForecasts'][0]['Temperature']['Maximum']['Value']
-	weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
+	#weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
 	weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
 
 	#Sending weather stickers instead of emojis
