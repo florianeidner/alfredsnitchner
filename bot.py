@@ -6,6 +6,7 @@ from datetime import datetime
 from pytz import timezone
 import json
 import threading
+import requests
 
 import telepot
 from telepot.loop import MessageLoop
@@ -18,6 +19,7 @@ from tinydb import TinyDB, Query
 #Setup
 alfred = telepot.Bot(os.environ['ALFRED_API_TOKEN'])
 nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
+weatherToken = os.environ['WEATHER_API_TOKEN']
 db = TinyDB('db.json')
 queue = {}
 
@@ -150,6 +152,35 @@ def actionMakePayment(chatId,msgSender,attributes):
 
 	alfred.sendMessage(chatId,message)
 
+def actionGetWeather(chatId,msgSender,attributes):
+	print "Talk to weather bot"
+	if attributes['entities'].has_key('location'):
+		location = attributes['entities']['location'][0]['value']
+	else:
+		location="Muenchen"
+
+	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q'=location,'language'='de-de'})
+	city = r.json()[0]['LocalizedName']
+	country = r.json()[0]['Country']['LocalizedName']
+	locationKey = r.json()[0]['Key']
+
+	message= "Hier kommt das Wetter fuer "+city+", "+country+":"
+	alfred.sendMessage(chatId,message)
+
+	url="http://dataservice.accuweather.com/forecasts/v1/daily/1day/"+locationKey
+	r = requests.get(url,params={'apikey':weatherToken,'language':'de-de','details':'false','metric':'true'})
+	headline = r.json()['Headline']['Text']
+	weatherLink = r.json()['Headline']['Link']
+	tempMin = r.json()['DailyForecasts'][0]['Temperature']['Minimum']['Value']
+	tempMax = r.json()['DailyForecasts'][0]['Temperature']['Maximum']['Value']
+	weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
+	weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
+
+	filename="weather_icons/"+str(weatherIcon)+"-s.png"
+	iconFile=open(filename,'r')
+	message = "*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+" bis "+str(tempMax)+" Grad.\n Mehr Infos unter: "+weatherLink
+	alfred.sendPhoto(chatId,iconFile)
+	alfred.sendMessage(chatId,message)
 
 intentActions = {
 	"introduction": actionIntro,
@@ -160,7 +191,8 @@ intentActions = {
 	"balance" : actionGetBalance,
 	"cut" : actionSetCut,
 	"expenses":actionGetExpenses,
-	"pay":actionMakePayment}
+	"pay":actionMakePayment,
+	"weather":actionGetWeather}
 
 #Queue commands
 def addCommand(function, args):
