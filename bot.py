@@ -148,6 +148,8 @@ def actionMakePayment(chatId,msgSender,attributes):
 
 	alfred.sendMessage(chatId,message)
 
+def actionGetWeather(chatId,msgSender,attributes):
+
 
 intentActions = {
 	"introduction": actionIntro,
