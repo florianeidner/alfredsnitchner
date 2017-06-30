@@ -36,10 +36,10 @@ def getTimestamp():
 	return timestamp
 
 def tail(f, n, offset=0):
-  stdin,stdout = os.popen2("tail -n "+n+offset+" "+f)
+  stdin,stdout = os.popen2("tail -n "+str(n)+str(offset)+" "+f)
   stdin.close()
   lines = stdout.readlines(); stdout.close()
-  return lines[:,-offset]
+  return lines[:(-offset)]
 
 awaitingConfirmation = False
 
@@ -235,10 +235,11 @@ intentActions = {
 	"pay":actionMakePayment,
 	"weather":actionGetWeather}
 
-def cmdPrintError():
-	errorLog= open("/var/log/alfredsnitchner.err.log","r")
-	message=tail(errorlog,20)
-
+def cmdPrintError(chatId):
+	errorLog= "/var/log/alfredsnitchner.err.log"
+	message=tail(errorLog,20)
+	alfred.sendMessage(chatId,"Ok, hier sind die letzten logs")
+	alfred.sendMessage(chatId,message)
 commands = {
 	"errors" : cmdPrintError
 	}
@@ -312,15 +313,15 @@ def handleMessage(msg):
 	msgSender = msg['from']['first_name']
 
 	if "/" in msgContent:
-		cmd = msgContent[msgContent.find("/")].split()[0]
+		cmd = msgContent[msgContent.find("/")+1:].split()[0]
 		print "Command received"
 		if commands.has_key(cmd):
-			message = "JAWOHL!"+u'\U00001F4A9'
-			sendMessage(chatId,message)
-			commands[cmd]()
+			message = "JAWOHL!"+u'\U0001F4A9'
+			alfred.sendMessage(chatId,message)
+			commands[cmd](chatId)
 		else:
 			message="Du hast mir garnichts zu sagen"+u'\U0001F44A'
-			sendMessage(chatId,message)
+			alfred.sendMessage(chatId,message)
 	else:
 		print "Message received"
 		print "messageForward: " + str(messageForward)
