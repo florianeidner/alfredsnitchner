@@ -265,9 +265,16 @@ def cmdPrintError(chatId):
 	message=tail(errorLog,20)
 	alfred.sendMessage(chatId,"Ok, hier sind die letzten logs")
 	alfred.sendMessage(chatId,message)
+
+def cmdShowHelp(chatId):
+	message = "Folgende Befehle kannst du mir geben:\n"
+	for cmd in commands:
+		message+=("  /"cmd+"\n")
+	alfred.sendMessage(chatId,message)
+
 commands = {
 	"errors" : cmdPrintError
-	}
+	"help" : cmdShowHelp}
 
 
 
@@ -340,7 +347,7 @@ def handleMessage(msg):
 	if "/" in msgContent:
 		cmd = msgContent[msgContent.find("/")+1:].split()[0]
 		print "Command received"
-		if commands.has_key(cmd):
+		if commands.has_key(cmd) and (msgSender=='Florian'):
 			message = "JAWOHL!"+u'\U0001F4A9'
 			alfred.sendMessage(chatId,message)
 			commands[cmd](chatId)
