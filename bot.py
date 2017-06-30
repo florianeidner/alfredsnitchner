@@ -201,7 +201,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 	#alfred.sendPhoto(chatId,filename)
 	emoji = weatherEmojis[weatherCategory]
 
-	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
+	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
 	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
 intentActions = {
