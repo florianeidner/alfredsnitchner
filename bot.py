@@ -35,11 +35,36 @@ def getTimestamp():
 	timestamp=time.time()
 	return timestamp
 
-def tail(f, n, offset=0):
-  stdin,stdout = os.popen2("tail -n "+str(n)+str(offset)+" "+f)
-  stdin.close()
-  lines = stdout.readlines(); stdout.close()
-  return lines[:(-offset)]
+def tail(file, lines=20, _buffer=4098):
+    #Tail a file and get X lines from the end
+    #place holder for the lines found
+    f=open(file,'r')
+    lines_found = []
+
+    # block counter will be multiplied by buffer
+    # to get the block size from the end
+    block_counter = -1
+
+    # loop until we find X lines
+    while len(lines_found) < lines:
+        try:
+            f.seek(block_counter * _buffer, os.SEEK_END)
+        except IOError:  # either file is too small, or too many lines requested
+            f.seek(0)
+            lines_found = f.readlines()
+            break
+
+        lines_found = f.readlines()
+
+        # we found enough lines, get out
+        if len(lines_found) > lines:
+            break
+
+        # decrement the block counter to get the
+        # next X bytes
+        block_counter -= 1
+
+    return lines_found[-lines:]
 
 awaitingConfirmation = False
 
