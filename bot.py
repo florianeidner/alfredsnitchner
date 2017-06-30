@@ -37,6 +37,23 @@ def getTimestamp():
 
 awaitingConfirmation = False
 
+degree_sign= u'\N{DEGREE SIGN}'
+
+weatherEmojis=
+{
+	'thunderstorm' : u'\U0001F4A8',		# Code: 200's, 900, 901, 902, 905
+	'drizzle' : u'\U0001F4A7',			# Code: 300's
+	'rain' : u'\U00002614',				# Code: 500's
+	'snowflake' : u'\U00002744',		# Code: 600's snowflake
+	'snowman' : u'\U000026C4',			# Code: 600's snowman, 903, 906
+	'atmosphere' : u'\U0001F301',		# Code: 700's foogy
+	'clearSky' : u'\U00002600',			# Code: 800 clear sky
+	'fewClouds' : u'\U000026C5',		# Code: 801 sun behind clouds
+	'clouds' : u'\U00002601',			# Code: 802-803-804 clouds general
+	'hot' : u'\U0001F525',  			# Code: 904
+	'defaultEmoji' : u'\U0001F300'		# default emojis
+	}
+
 #Forward all messages to Bot
 messageForward=False
 
@@ -173,16 +190,21 @@ def actionGetWeather(chatId,msgSender,attributes):
 	r = requests.get(url,params={'apikey':weatherToken,'language':'de-de','details':'false','metric':'true'})
 	headline = r.json()['Headline']['Text']
 	weatherLink = r.json()['Headline']['Link']
+	weatherCategory = r.json()['Headline']['Category']
 	tempMin = r.json()['DailyForecasts'][0]['Temperature']['Minimum']['Value']
 	tempMax = r.json()['DailyForecasts'][0]['Temperature']['Maximum']['Value']
 	weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
 	weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
+	
+	#Sending weather stickers instead of emojis
+	#filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
+	#iconFile=open(filename,'r')
+	
+	emoji = weatherEmojis[weatherCategory]
 
-	filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
-	iconFile=open(filename,'r')
-	message = "*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+" bis "+str(tempMax)+" Grad.\n Mehr Infos unter: "+weatherLink
+	message = emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C.\n Mehr Infos unter: "+weatherLink
 	alfred.sendPhoto(chatId,iconFile)
-	alfred.sendMessage(chatId,message)
+	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
 intentActions = {
 	"introduction": actionIntro,
