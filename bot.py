@@ -39,8 +39,7 @@ awaitingConfirmation = False
 
 degree_sign= u'\N{DEGREE SIGN}'
 
-weatherEmojis=
-{
+weatherEmojis = {
 	'thunderstorm' : u'\U0001F4A8',		# Code: 200's, 900, 901, 902, 905
 	'drizzle' : u'\U0001F4A7',			# Code: 300's
 	'rain' : u'\U00002614',				# Code: 500's
@@ -195,15 +194,14 @@ def actionGetWeather(chatId,msgSender,attributes):
 	tempMax = r.json()['DailyForecasts'][0]['Temperature']['Maximum']['Value']
 	weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
 	weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
-	
+
 	#Sending weather stickers instead of emojis
 	#filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
 	#iconFile=open(filename,'r')
-	
+	#alfred.sendPhoto(chatId,filename)
 	emoji = weatherEmojis[weatherCategory]
 
-	message = emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C.\n Mehr Infos unter: "+weatherLink
-	alfred.sendPhoto(chatId,iconFile)
+	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
 	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
 intentActions = {
