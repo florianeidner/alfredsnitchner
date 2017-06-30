@@ -35,6 +35,12 @@ def getTimestamp():
 	timestamp=time.time()
 	return timestamp
 
+def tail(f, n, offset=0):
+  stdin,stdout = os.popen2("tail -n "+n+offset+" "+f)
+  stdin.close()
+  lines = stdout.readlines(); stdout.close()
+  return lines[:,-offset]
+
 awaitingConfirmation = False
 
 degree_sign= u'\N{DEGREE SIGN}'
@@ -230,10 +236,11 @@ intentActions = {
 	"weather":actionGetWeather}
 
 def cmdPrintError():
-	print "Error"
+	errorLog= open("/var/log/alfredsnitchner.err.log","r")
+	message=tail(errorlog,20)
 
 commands = {
-	"error" : cmdPrintError
+	"errors" : cmdPrintError
 	}
 
 
@@ -306,25 +313,33 @@ def handleMessage(msg):
 
 	if "/" in msgContent:
 		cmd = msgContent[msgContent.find("/")].split()[0]
-
-	print "Message received"
-	print "messageForward: " + str(messageForward)
-	if "alfred" in msgContent or "Alfred" in msgContent or(messageForward == True):
-		print "Yeah, i was mentioned"
-		resp = nlp.message(msgContent)
-		if resp['entities'].has_key('intent'):
-			intent = resp['entities']['intent'][0]['value']
-			print resp
-			print "Intent:" + intent
-			if intentActions.has_key(intent):
-				intentActions[intent](chatId,msgSender,resp)
-			else:
-				actionNotLearned(chatId,intent)
+		print "Command received"
+		if commands.has_key(cmd):
+			message = "JAWOHL!"+u'\U00001F4A9'
+			sendMessage(chatId,message)
+			commands[cmd]()
 		else:
-			print "No intent found"
-			alfred.sendMessage(chatId,"Mmmh. Erklaer mir nochmal was ich machen soll")
-			if messageForward == False:
-				forceNextMessages(10)
+			message="Du hast mir garnichts zu sagen"+u'\U0001F44A'
+			sendMessage(chatId,message)
+	else:
+		print "Message received"
+		print "messageForward: " + str(messageForward)
+		if "alfred" in msgContent or "Alfred" in msgContent or(messageForward == True):
+			print "Yeah, i was mentioned"
+			resp = nlp.message(msgContent)
+			if resp['entities'].has_key('intent'):
+				intent = resp['entities']['intent'][0]['value']
+				print resp
+				print "Intent:" + intent
+				if intentActions.has_key(intent):
+					intentActions[intent](chatId,msgSender,resp)
+				else:
+					actionNotLearned(chatId,intent)
+			else:
+				print "No intent found"
+				alfred.sendMessage(chatId,"Mmmh. Erklaer mir nochmal was ich machen soll")
+				if messageForward == False:
+					forceNextMessages(10)
 
 MessageLoop(alfred,handleMessage).run_as_thread()
 
