@@ -20,6 +20,8 @@ from tinydb import TinyDB, Query
 alfred = telepot.Bot(os.environ['ALFRED_API_TOKEN'])
 nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
 weatherToken = os.environ['WEATHER_API_TOKEN']
+runDir = os.environ['RUN_DIR'] #This one sets the directory where bot.py is located, so we can use relative paths
+
 db = TinyDB('db.json')
 queue = {}
 
@@ -159,7 +161,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 	else:
 		location="Muenchen"
 
-	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q'=location,'language'='de-de'})
+	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
 	city = r.json()[0]['LocalizedName']
 	country = r.json()[0]['Country']['LocalizedName']
 	locationKey = r.json()[0]['Key']
@@ -176,7 +178,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 	weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
 	weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
 
-	filename="weather_icons/"+str(weatherIcon)+"-s.png"
+	filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
 	iconFile=open(filename,'r')
 	message = "*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+" bis "+str(tempMax)+" Grad.\n Mehr Infos unter: "+weatherLink
 	alfred.sendPhoto(chatId,iconFile)
