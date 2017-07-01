@@ -210,45 +210,46 @@ def actionMakePayment(chatId,msgSender,attributes):
 
 def actionGetWeather(chatId,msgSender,attributes):
 	print "Talk to weather bot"
+	location_not_found=False
+
 	if attributes['entities'].has_key('location'):
 		location = attributes['entities']['location'][0]['value']
 	else:
 		location="München"
 
 	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
-	if (bool(r.json())== False):
-		alfred.sendMessage(chatId,"Den Ort habe ich nicht gefunden")
-		location ="München"
-		r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
+	if r.json().has_key['Code'] and r.json()['Code']=="ServiceUnavailable":
+		alfred.sendMessage(chatId,"Der Wetterservice ist momentan nicht verfügbar.")
 
-	city = r.json()[0]['LocalizedName']
-	country = r.json()[0]['Country']['LocalizedName']
-	locationKey = r.json()[0]['Key']
-
-	message= "Hier kommt das Wetter fuer "+city+", "+country+":"
-	alfred.sendMessage(chatId,message)
-
-	url="http://dataservice.accuweather.com/forecasts/v1/daily/1day/"+locationKey
-	r = requests.get(url,params={'apikey':weatherToken,'language':'de-de','details':'false','metric':'true'})
-	headline = r.json()['Headline']['Text']
-	weatherLink = r.json()['Headline']['Link']
-	weatherCategory = r.json()['Headline']['Category']
-	tempMin = r.json()['DailyForecasts'][0]['Temperature']['Minimum']['Value']
-	tempMax = r.json()['DailyForecasts'][0]['Temperature']['Maximum']['Value']
-	#weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
-	weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
-
-	#Sending weather stickers instead of emojis
-	#filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
-	#iconFile=open(filename,'r')
-	#alfred.sendPhoto(chatId,filename)
-	if weatherEmojis.has_key(weatherCategory):
-		emoji = weatherEmojis[weatherCategory]
+	elif bool(r.json())==False:
+		alfred.sendMessage(chatId,"Für den Ort find ich keine Wetterdaten")
+		weather = (-1)
 	else:
-		emoji = u'\U0001F300'
+		city = r.json()[0]['LocalizedName']
+		country = r.json()[0]['Country']['LocalizedName']
+		locationKey = r.json()[0]['Key']
+		message= "Hier kommt das Wetter fuer "+city+", "+country+":"
+		alfred.sendMessage(chatId,message)
+		url="http://dataservice.accuweather.com/forecasts/v1/daily/1day/"+locationKey
+		r = requests.get(url,params={'apikey':weatherToken,'language':'de-de','details':'false','metric':'true'})
+		headline = r.json()['Headline']['Text']
+		weatherLink = r.json()['Headline']['Link']
+		weatherCategory = r.json()['Headline']['Category']
+		tempMin = r.json()['DailyForecasts'][0]['Temperature']['Minimum']['Value']
+		tempMax = r.json()['DailyForecasts'][0]['Temperature']['Maximum']['Value']
+		#weatherIcon = r.json()['DailyForecasts'][0]['Day']['Icon']
+		weatherPhrase = r.json()['DailyForecasts'][0]['Day']['IconPhrase']
+		#Sending weather stickers instead of emojis
+		#filename=runDir+"weather_icons/"+str(weatherIcon)+"-s.png"
+		#iconFile=open(filename,'r')
+		#alfred.sendPhoto(chatId,filename)
+		if weatherEmojis.has_key(weatherCategory):
+			emoji = weatherEmojis[weatherCategory]
+		else:
+			emoji = u'\U0001F300'
+		message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
+		alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
-	message = emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+emoji+"\n*"+headline+"*\n"+weatherPhrase+" bei tagsueber zwischen "+str(tempMin)+degree_sign+"C bis "+str(tempMax)+degree_sign+"C\nMehr Infos unter: "+weatherLink
-	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
 def actionNotLearned(chatId,intent):
 	emoji = u'\U0001F622'
