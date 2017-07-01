@@ -272,9 +272,25 @@ def cmdShowHelp(chatId):
 		message+=("  /"+cmd+"\n")
 	alfred.sendMessage(chatId,message)
 
+def cmdRestart(chatId):
+	alfred.sendMessage(chatId,"Ciao,bis gleich!")
+	os.system("supervisorctl restart alfredsnitchner")
+
+def cmdReset(chatId):
+	
+	addCommand(dbPurgeAll,)
+	alfred.sendMessage(chatId,"Soll ich die Datenbank bereinigen?")
+	
+	global awaitingConfirmation
+	awaitingConfirmation = True
+
+	forceNextMessages(20)
+
 commands = {
 	"errors" : cmdPrintError,
-	"help" : cmdShowHelp}
+	"help" : cmdShowHelp,
+	"restart" : cmdRestart,
+	"reset": cmdReset}
 
 
 
@@ -335,6 +351,8 @@ def dbGetBalance(sender):
 	expenses['Outstanding'] = ((expenses['Total']/2)-expenses[sender])
 	return expenses
 
+def dbPurgeAll():
+	db.purge()
 
 #Handle incoming messages.
 
