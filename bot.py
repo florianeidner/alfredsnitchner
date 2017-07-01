@@ -379,7 +379,7 @@ def handleMessage(msg):
 	if "/" in msgContent:
 		cmd = msgContent[msgContent.find("/")+1:].split()[0]
 		print "Command received"
-		if commands.has_key(cmd) and (msgSender=='Florian'):
+		if commands.has_key(cmd): # and (msgSender=='Florian'):
 			message = "JAWOHL!"+u'\U0001F4A9'
 			alfred.sendMessage(chatId,message)
 			commands[cmd](chatId)
