@@ -24,7 +24,7 @@ nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
 weatherToken = os.environ['WEATHER_API_TOKEN']
 runDir = os.environ['RUN_DIR'] #This one sets the directory where bot.py is located, so we can use relative paths
 
-quotes=json.load(open(runDir+"media/quotes.json","r"))[0]
+quotes=json.load(open(runDir+"media/quotes.json","r"))
 
 db = TinyDB('db.json')
 queue = {}
@@ -152,9 +152,8 @@ def actionGreeting(chatId,msgSender,attributes):
 	print "Saying hello"
 	hello = "Hallo, " + msgSender
 	alfred.sendMessage(chatId,hello)
-	if (randint(1,50)<15):
-		quote=quotes[(randint(1, 51))]
-		alfred.sendMessage(chatId,quote)
+	if ((randint(1,50))<20):
+		cmdQuote(chatId)
 
 	forceNextMessages(20)
 
@@ -296,8 +295,8 @@ def cmdReset(chatId):
 
 def cmdQuote(chatId):
 	quote=quotes[str((randint(1, 27)))]
-#	quote=quotes[24]
-	alfred.sendMessage(chatId,quote)
+	quote=quote+" _B. Springsteen_"
+	alfred.sendMessage(chatId,quote,parse_mode="Markdown")
 	alfred.sendMessage(chatId,"Just saying.")
 
 
