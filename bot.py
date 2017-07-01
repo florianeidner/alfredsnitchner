@@ -277,10 +277,10 @@ def cmdRestart(chatId):
 	os.system("supervisorctl restart alfredsnitchner")
 
 def cmdReset(chatId):
-	
-	addCommand(dbPurgeAll,)
+	args={}
+	addCommand(dbPurgeAll,args)
 	alfred.sendMessage(chatId,"Soll ich die Datenbank bereinigen?")
-	
+
 	global awaitingConfirmation
 	awaitingConfirmation = True
 
