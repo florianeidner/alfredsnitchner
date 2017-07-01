@@ -7,6 +7,7 @@ from pytz import timezone
 import json
 import threading
 import requests
+from random import randint
 
 import telepot
 from telepot.loop import MessageLoop
@@ -21,6 +22,7 @@ alfred = telepot.Bot(os.environ['ALFRED_API_TOKEN'])
 nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
 weatherToken = os.environ['WEATHER_API_TOKEN']
 runDir = os.environ['RUN_DIR'] #This one sets the directory where bot.py is located, so we can use relative paths
+quotes = json.load(open(runDir+"media/springsteen_quotes.json","r"))
 
 db = TinyDB('db.json')
 queue = {}
@@ -148,6 +150,11 @@ def actionGreeting(chatId,msgSender,attributes):
 	print "Saying hello"
 	hello = "Hallo, " + msgSender
 	alfred.sendMessage(chatId,hello)
+	
+	if (randint(1,50)<15):
+		quote=quotes[print(randint(1, 51))]
+		alfred.sendMessage(chatId,quote)
+
 	forceNextMessages(20)
 
 def actionGetBalance(chatId,msgSender,attributes):
@@ -286,12 +293,18 @@ def cmdReset(chatId):
 
 	forceNextMessages(20)
 
+def cmdQuote(chatId):
+	quote=quotes[print(randint(1, 51))]
+	alfred.sendMessage(chatId,quote)
+	alfred.sendMessage(chatId,"Just saying.")
+
+
 commands = {
 	"errors" : cmdPrintError,
 	"help" : cmdShowHelp,
 	"restart" : cmdRestart,
-	"reset": cmdReset}
-
+	"reset": cmdReset,
+	"quote": cmdQuote}
 
 
 #Queue commands
