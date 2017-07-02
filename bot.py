@@ -71,7 +71,7 @@ def tail(file, lines=20, _buffer=4098):
     return lines_found[-lines:]
 
 def getChuckNorrisFact():
-	r=requests.get(https://api.chucknorris.io/jokes/random)
+	r=requests.get("https://api.chucknorris.io/jokes/random")
 	fact = r.json()['value']
 	return fact
 
@@ -275,9 +275,12 @@ intentActions = {
 
 def cmdPrintError(chatId):
 	errorLog= "/var/log/alfredsnitchner.err.log"
-	message=tail(errorLog,20)
-	alfred.sendMessage(chatId,"Ok, hier sind die letzten logs")
-	alfred.sendMessage(chatId,message)
+	log=tail(errorLog,20)
+	message="*Ok, hier sind die letzten Logs:*\n"
+	for line in log:
+		message = message+line
+
+	alfred.sendMessage(chatId,message,parse_mode="Markdown")
 
 def cmdShowHelp(chatId):
 	message = "Folgende Befehle kannst du mir geben:\n"
@@ -391,6 +394,7 @@ def handleMessage(msg):
 			alfred.sendMessage(chatId,message)
 			commands[cmd](chatId)
 		else:
+			alfred.sendMessage(chatId,"Den Befehl kenn ich nicht")
 
 	else:
 		print "Message received"
@@ -407,13 +411,12 @@ def handleMessage(msg):
 				else:
 					actionNotLearned(chatId,intent)
 			else:
-
 				print "No intent found"
-				
+
 				chuckFact=getChuckNorrisFact()
-				
-				message = "Mmmh. Keine Ahnung was du willst. Aber wusstest du:" + chuckFact
-				alfred.sendMessage(chatId,"Mmmh. Da weiß ich nicht was ich machen soll")
+
+				message = "Mmmh. Keine Ahnung was du willst, aber wusstest du:\n_" + chuckFact+"_"
+				alfred.sendMessage(chatId,message,parse_mode="Markdown")
 				if messageForward == False:
 					forceNextMessages(10)
 
