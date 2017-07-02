@@ -218,7 +218,7 @@ def actionGetWeather(chatId,msgSender,attributes):
 		location="München"
 
 	r = requests.get('https://dataservice.accuweather.com/locations/v1/cities/autocomplete',params={'apikey':weatherToken,'q':location,'language':'de-de'})
-	if r.json().has_key['Code'] and r.json()['Code']=="ServiceUnavailable":
+	if r.json()[0].has_key('Code') and r.json()['Code']=="ServiceUnavailable":
 		alfred.sendMessage(chatId,"Der Wetterservice ist momentan nicht verfügbar.")
 
 	elif bool(r.json())==False:
