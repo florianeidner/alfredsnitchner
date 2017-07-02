@@ -70,6 +70,11 @@ def tail(file, lines=20, _buffer=4098):
 
     return lines_found[-lines:]
 
+def getChuckNorrisFact():
+	r=requests.get(https://api.chucknorris.io/jokes/random)
+	fact = r.json()['value']
+	return fact
+
 awaitingConfirmation = False
 
 degree_sign= u'\N{DEGREE SIGN}'
@@ -402,8 +407,13 @@ def handleMessage(msg):
 				else:
 					actionNotLearned(chatId,intent)
 			else:
+
 				print "No intent found"
-				alfred.sendMessage(chatId,"Mmmh. Erklaer mir nochmal was ich machen soll")
+				
+				chuckFact=getChuckNorrisFact()
+				
+				message = "Mmmh. Keine Ahnung was du willst. Aber wusstest du:" + chuckFact
+				alfred.sendMessage(chatId,"Mmmh. Da weiß ich nicht was ich machen soll")
 				if messageForward == False:
 					forceNextMessages(10)
 
