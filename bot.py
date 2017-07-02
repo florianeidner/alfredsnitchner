@@ -295,7 +295,8 @@ def cmdReset(chatId):
 	forceNextMessages(20)
 
 def cmdQuote(chatId):
-	quote=quotes[str((randint(1, 27)))]
+	length = len(json.loads(quotes))
+	quote=quotes[str((randint(1, length)))]
 	quote=quote+" _B. Springsteen_"
 	alfred.sendMessage(chatId,quote,parse_mode="Markdown")
 	alfred.sendMessage(chatId,"Just saying.")
@@ -385,8 +386,7 @@ def handleMessage(msg):
 			alfred.sendMessage(chatId,message)
 			commands[cmd](chatId)
 		else:
-			message="Du hast mir garnichts zu sagen"+u'\U0001F44A'
-			alfred.sendMessage(chatId,message)
+
 	else:
 		print "Message received"
 		print "messageForward: " + str(messageForward)
