@@ -20,6 +20,8 @@ from tinydb import TinyDB, Query
 
 
 #Setup
+logging.getLogger().setLevel(logging.INFO)
+
 alfred = telepot.Bot(os.environ['ALFRED_API_TOKEN'])
 nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
 weatherToken = os.environ['WEATHER_API_TOKEN']
