@@ -9,6 +9,7 @@ import json
 import threading
 import requests
 from random import randint
+import logging
 
 import telepot
 from telepot.loop import MessageLoop
@@ -403,14 +404,21 @@ def dbPurgeAll():
 #Handle incoming messages.
 
 def handleMessage(msg):
-	print msg
-	chatId = msg['chat']['id']
-	msgContent = msg['text']
-	msgSender = msg['from']['first_name']
+	
+	logging.info('Message received')
+	logging.debug('Message:'+str(msg))
+	try:
+		chatId = msg['chat']['id']
+		msgContent = msg['text']
+		msgSender = msg['from']['first_name']
+	except:
+		logging.warning('Couldnt extract Chat ID, Content or Sender from message.')
+
 	if ((str(chatId) in allowedChats) or ("ALL" in allowedChats)):
+		logging.info('Message from allowed Chat. Starting the handling...')
 		if "/" in msgContent:
+			logging.info('Message is a command. Extracting command...')
 			cmd = msgContent[msgContent.find("/")+1:].split()[0]
-			print "Command received"
 			if commands.has_key(cmd): # and (msgSender=='Florian'):
 				message = "JAWOHL!"+u'\U0001F4A9'
 				alfred.sendMessage(chatId,message)
@@ -419,21 +427,24 @@ def handleMessage(msg):
 				alfred.sendMessage(chatId,"Den Befehl kenn ich nicht.")
 
 		else:
-			print "Message received"
-			print "messageForward: " + str(messageForward)
+			logging.info('Lets see if I was mentioned... - Message forwarding is:' + str(messageForward))
+
 			if "alfred" in msgContent or "Alfred" in msgContent or(messageForward == True):
-				print "Yeah, i was mentioned"
+				logging.info('Ok i heard my name or forwarding is turned on. I will try to parse the message...')
 				resp = nlp.message(msgContent)
 				if resp['entities'].has_key('intent'):
 					intent = resp['entities']['intent'][0]['value']
-					print resp
-					print "Intent:" + intent
+					logging.info('The NLP detected an intent.')
+					logging.debug(str(resp))
+					
 					if intentActions.has_key(intent):
+						logging.info('Intent: '+ str(intent)+" - I know what to do.")
 						intentActions[intent](chatId,msgSender,resp)
 					else:
+						logging.info('Intent: '+ str(intent)+" - You didnt tell me what to do yet.")
 						actionNotLearned(chatId,intent)
 				else:
-					print "No intent found"
+					logging.info('No idea what that means, lets reply with a random quote...')
 
 					chuckFact=getChuckNorrisFact()
 
@@ -442,12 +453,17 @@ def handleMessage(msg):
 					if messageForward == False:
 						forceNextMessages(10)
 	else:
+		logging.info('This chatId is not allowed.')
+		
+		logmsg= 'This ID: '+ chatId +'\nAllowed: '
+		for allowedChat in allowedChats:
+			logmsg = logmsg+str(allowedChat)+", "
+		logging.debug(logmsg)
+
 		message = "In diesem Chat darf ich nicht antworten. Der Chat hat die ID "+str(chatId)
 		alfred.sendMessage(chatId,message)
 
 MessageLoop(alfred,handleMessage).run_as_thread()
 
-print "Listening..."
-print getTimestamp()
 while 1:
 	time.sleep(10)
