@@ -23,6 +23,7 @@ alfred = telepot.Bot(os.environ['ALFRED_API_TOKEN'])
 nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
 weatherToken = os.environ['WEATHER_API_TOKEN']
 runDir = os.environ['RUN_DIR'] #This one sets the directory where bot.py is located, so we can use relative paths
+allowedChats= os.environ['ALLOWED_CHATS'].split(",")
 
 quotes=json.load(open(runDir+"media/quotes.json","r"))
 
@@ -309,13 +310,21 @@ def cmdQuote(chatId):
 	alfred.sendMessage(chatId,quote,parse_mode="Markdown")
 	alfred.sendMessage(chatId,"Just saying.")
 
+def cmdStatus(chatId):
+	message = "Dieser Chat hat folgende ID: "+str(chatId)+"\nErlaubte Chats:\n"
+	for allowedChat in allowedChats:
+		message=message+"   "+allowedChat+"\n"
+
+	alfred.sendMessage(chatId,message)
+
 
 commands = {
 	"errors" : cmdPrintError,
 	"help" : cmdShowHelp,
 	"restart" : cmdRestart,
 	"reset": cmdReset,
-	"quote": cmdQuote}
+	"quote": cmdQuote,
+	"status":cmdStatus}
 
 
 #Queue commands
@@ -385,40 +394,40 @@ def handleMessage(msg):
 	chatId = msg['chat']['id']
 	msgContent = msg['text']
 	msgSender = msg['from']['first_name']
-
-	if "/" in msgContent:
-		cmd = msgContent[msgContent.find("/")+1:].split()[0]
-		print "Command received"
-		if commands.has_key(cmd): # and (msgSender=='Florian'):
-			message = "JAWOHL!"+u'\U0001F4A9'
-			alfred.sendMessage(chatId,message)
-			commands[cmd](chatId)
-		else:
-			alfred.sendMessage(chatId,"Den Befehl kenn ich nicht")
-
-	else:
-		print "Message received"
-		print "messageForward: " + str(messageForward)
-		if "alfred" in msgContent or "Alfred" in msgContent or(messageForward == True):
-			print "Yeah, i was mentioned"
-			resp = nlp.message(msgContent)
-			if resp['entities'].has_key('intent'):
-				intent = resp['entities']['intent'][0]['value']
-				print resp
-				print "Intent:" + intent
-				if intentActions.has_key(intent):
-					intentActions[intent](chatId,msgSender,resp)
-				else:
-					actionNotLearned(chatId,intent)
+	if (str(chatId) in allowedChats) or (allowedChats=="ALL"):
+		if "/" in msgContent:
+			cmd = msgContent[msgContent.find("/")+1:].split()[0]
+			print "Command received"
+			if commands.has_key(cmd): # and (msgSender=='Florian'):
+				message = "JAWOHL!"+u'\U0001F4A9'
+				alfred.sendMessage(chatId,message)
+				commands[cmd](chatId)
 			else:
-				print "No intent found"
+				alfred.sendMessage(chatId,"Den Befehl kenn ich nicht")
 
-				chuckFact=getChuckNorrisFact()
+		else:
+			print "Message received"
+			print "messageForward: " + str(messageForward)
+			if "alfred" in msgContent or "Alfred" in msgContent or(messageForward == True):
+				print "Yeah, i was mentioned"
+				resp = nlp.message(msgContent)
+				if resp['entities'].has_key('intent'):
+					intent = resp['entities']['intent'][0]['value']
+					print resp
+					print "Intent:" + intent
+					if intentActions.has_key(intent):
+						intentActions[intent](chatId,msgSender,resp)
+					else:
+						actionNotLearned(chatId,intent)
+				else:
+					print "No intent found"
 
-				message = "Mmmh. Keine Ahnung was du willst, aber wusstest du:\n_" + chuckFact+"_"
-				alfred.sendMessage(chatId,message,parse_mode="Markdown")
-				if messageForward == False:
-					forceNextMessages(10)
+					chuckFact=getChuckNorrisFact()
+
+					message = "Mmmh. Keine Ahnung was du willst, aber wusstest du:\n_" + chuckFact+"_"
+					alfred.sendMessage(chatId,message,parse_mode="Markdown")
+					if messageForward == False:
+						forceNextMessages(10)
 
 MessageLoop(alfred,handleMessage).run_as_thread()
 
