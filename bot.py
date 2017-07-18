@@ -24,13 +24,24 @@ nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
 weatherToken = os.environ['WEATHER_API_TOKEN']
 runDir = os.environ['RUN_DIR'] #This one sets the directory where bot.py is located, so we can use relative paths
 allowedChats= os.environ['ALLOWED_CHATS'].split(",")
+if not allowedChats: #If no delimiter "," was found
+	allowedChats = os.environ['ALLOWED_CHATS']
 
 quotes=json.load(open(runDir+"media/quotes.json","r"))
 
 db = TinyDB('db.json')
 queue = {}
 
+startTime = time.time()
+
 #Utilities
+def getUptime():
+	seconds = (time.time() - startTime)
+	m, s =divmod(seconds, 60)
+	h, m = divmod(m, 60)
+	uptime = str("%d:%02d:%02d" %(h,m,s))
+	return uptime
+
 def getTimestamp():
 #	tz='Europe/Berlin'
 #	year = datetime.now(timezone(tz)).strftime('%Y')
@@ -311,10 +322,12 @@ def cmdQuote(chatId):
 	alfred.sendMessage(chatId,"Just saying.")
 
 def cmdStatus(chatId):
+
 	message = "Dieser Chat hat folgende ID: "+str(chatId)+"\nErlaubte Chats:\n"
 	for allowedChat in allowedChats:
 		message=message+"   "+allowedChat+"\n"
 
+	message = message+"\nIch bin jetzt seit "+str(getUptime())+ " online!"
 	alfred.sendMessage(chatId,message)
 
 
@@ -394,7 +407,7 @@ def handleMessage(msg):
 	chatId = msg['chat']['id']
 	msgContent = msg['text']
 	msgSender = msg['from']['first_name']
-	if (str(chatId) in allowedChats) or (allowedChats=="ALL"):
+	if ((str(chatId) in allowedChats) or ("ALL" in allowedChats)):
 		if "/" in msgContent:
 			cmd = msgContent[msgContent.find("/")+1:].split()[0]
 			print "Command received"
@@ -428,6 +441,9 @@ def handleMessage(msg):
 					alfred.sendMessage(chatId,message,parse_mode="Markdown")
 					if messageForward == False:
 						forceNextMessages(10)
+	else:
+		message = "In diesem Chat darf ich nicht antworten. Der Chat hat die ID "+str(chatId)
+		alfred.sendMessage(chatId,message)
 
 MessageLoop(alfred,handleMessage).run_as_thread()
 
