@@ -416,7 +416,7 @@ def handleMessage(msg):
 				alfred.sendMessage(chatId,message)
 				commands[cmd](chatId)
 			else:
-				alfred.sendMessage(chatId,"Den Befehl kenn ich nicht")
+				alfred.sendMessage(chatId,"Den Befehl kenn ich nicht.")
 
 		else:
 			print "Message received"
