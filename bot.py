@@ -209,6 +209,8 @@ def actionGetExpenses(chatId,msgSender,attributes):
 	for expense in expenses:
 		message=message+str(expense['date'])+" - *"+str(expense['amount'])+"EUR*  "+expense['account']+" - _"+expense['category']+"_\n"
 
+	if (message == ""):
+		message = "Ihr habt seid der letzten Abrechnung nichts ausgegeben."
 	alfred.sendMessage(chatId,message,parse_mode='Markdown')
 
 def actionMakePayment(chatId,msgSender,attributes):
