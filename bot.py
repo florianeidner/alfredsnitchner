@@ -20,7 +20,7 @@ from tinydb import TinyDB, Query
 
 
 #Setup
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.DEBUG)
 
 alfred = telepot.Bot(os.environ['ALFRED_API_TOKEN'])
 nlp = Wit(access_token=os.environ['WIT_API_TOKEN'])
@@ -144,8 +144,15 @@ def actionAddExpense(chatId,msgSender,attributes):
 		person = msgSender
 
 	answer = "Ok, soll ich " +str(amount)+ "EUR zu "+person+"'s Ausgaben hinzufuegen?"
-	category = "No"
 	alfred.sendMessage(chatId,answer)
+
+	if attributes['entities'].has_key('spending_type'):
+		category = attributes['entities'].has_key('spending_type')
+
+	else:
+		category = "No"
+
+	
 	args = {'person':person,'amount':amount,'category':category}
 	addCommand(dbAddExpense,args)
 
@@ -203,13 +210,12 @@ def actionSetCut(chatId,msgSender,attributes):
 def actionGetExpenses(chatId,msgSender,attributes):
 	print "Lets see what was spent."
 	period = 100000
-	alfred.sendMessage(chatId,"Also, Ihr habt folgendes ausgegeben:")
 	expenses = dbGetExpenses(period)
-	message=""
+	message="Also, Ihr habt folgendes ausgegeben:"
 	for expense in expenses:
 		message=message+str(expense['date'])+" - *"+str(expense['amount'])+"EUR*  "+expense['account']+" - _"+expense['category']+"_\n"
 
-	if (message == ""):
+	if (message == "Also, Ihr habt folgendes ausgegeben:":
 		message = "Ihr habt seid der letzten Abrechnung nichts ausgegeben."
 	alfred.sendMessage(chatId,message,parse_mode='Markdown')
 
