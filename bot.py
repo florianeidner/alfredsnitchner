@@ -147,10 +147,10 @@ def actionAddExpense(chatId,msgSender,attributes):
 	alfred.sendMessage(chatId,answer)
 
 	if attributes['entities'].has_key('spending_type'):
-		category = attributes['entities'].has_key('spending_type')
+		category = attributes['entities']['spending_type']['value']
 
 	else:
-		category = "No"
+		category = "/"
 
 	
 	args = {'person':person,'amount':amount,'category':category}
@@ -215,7 +215,7 @@ def actionGetExpenses(chatId,msgSender,attributes):
 	for expense in expenses:
 		message=message+str(expense['date'])+" - *"+str(expense['amount'])+"EUR*  "+expense['account']+" - _"+expense['category']+"_\n"
 
-	if (message == "Also, Ihr habt folgendes ausgegeben:":
+	if (message == "Also, Ihr habt folgendes ausgegeben:"):
 		message = "Ihr habt seid der letzten Abrechnung nichts ausgegeben."
 	alfred.sendMessage(chatId,message,parse_mode='Markdown')
 
