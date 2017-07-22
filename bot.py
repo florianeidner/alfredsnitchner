@@ -299,7 +299,7 @@ intentActions = {
 def cmdPrintError(chatId):
 	errorLog= "/var/log/alfredsnitchner.err.log"
 	log=tail(errorLog,20)
-	message="*Ok, hier sind die letzten Logs:*\n"
+	message="Ok, hier sind die letzten Logs:\n"
 	for line in log:
 		message = message+line
 
