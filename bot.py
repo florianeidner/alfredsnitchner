@@ -152,7 +152,7 @@ def actionAddExpense(chatId,msgSender,attributes):
 	else:
 		category = "No"
 
-	
+
 	args = {'person':person,'amount':amount,'category':category}
 	addCommand(dbAddExpense,args)
 
@@ -215,7 +215,7 @@ def actionGetExpenses(chatId,msgSender,attributes):
 	for expense in expenses:
 		message=message+str(expense['date'])+" - *"+str(expense['amount'])+"EUR*  "+expense['account']+" - _"+expense['category']+"_\n"
 
-	if (message == "Also, Ihr habt folgendes ausgegeben:":
+	if (message == "Also, Ihr habt folgendes ausgegeben:"):
 		message = "Ihr habt seid der letzten Abrechnung nichts ausgegeben."
 	alfred.sendMessage(chatId,message,parse_mode='Markdown')
 
