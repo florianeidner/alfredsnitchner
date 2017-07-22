@@ -147,10 +147,10 @@ def actionAddExpense(chatId,msgSender,attributes):
 	alfred.sendMessage(chatId,answer)
 
 	if attributes['entities'].has_key('spending_type'):
-		category = attributes['entities'].has_key('spending_type')
+		category = attributes['entities']['spending_type']['value']
 
 	else:
-		category = "No"
+		category = "/"
 
 
 	args = {'person':person,'amount':amount,'category':category}
