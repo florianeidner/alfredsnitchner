@@ -147,7 +147,7 @@ def actionAddExpense(chatId,msgSender,attributes):
 	alfred.sendMessage(chatId,answer)
 
 	if attributes['entities'].has_key('spending_type'):
-		category = attributes['entities']['spending_type']['value']
+		category = attributes['entities']['spending_type'][0]['value']
 
 	else:
 		category = "/"
@@ -211,7 +211,7 @@ def actionGetExpenses(chatId,msgSender,attributes):
 	print "Lets see what was spent."
 	period = 100000
 	expenses = dbGetExpenses(period)
-	message="Also, Ihr habt folgendes ausgegeben:"
+	message="Also, Ihr habt folgendes ausgegeben:\n"
 	for expense in expenses:
 		message=message+str(expense['date'])+" - *"+str(expense['amount'])+"EUR*  "+expense['account']+" - _"+expense['category']+"_\n"
 
@@ -303,7 +303,7 @@ def cmdPrintError(chatId):
 	for line in log:
 		message = message+line
 
-	alfred.sendMessage(chatId,message,parse_mode="Markdown")
+	alfred.sendMessage(chatId,message)
 
 def cmdShowHelp(chatId):
 	message = "Folgende Befehle kannst du mir geben:\n"
